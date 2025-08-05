@@ -2,7 +2,7 @@ import User from '../models/User.js';
 import Worship from '../models/Worship.js';
 import Gift from '../models/Gift.js';
 import { calculateTotalPoints } from '../utils/calculatePoints.js';
-
+import bcrypt from "bcrypt"
 export const createWorship = async (req, res) => {
     const { name, points, rewardValue } = req.body;
     const w = await Worship.create({ name, points, rewardValue });
@@ -75,6 +75,19 @@ export const manageUsers = async (req, res) => {
         .limit(limit);
 
     res.json({ total, page, pages: Math.ceil(total / limit), limit, data });
+};
+
+export const createParent = async (req, res) => {
+    const { name, email, password } = req.body;
+    const exists = await User.findOne({ email });
+    if (exists) {
+        return res.status(400).json({ success: false, message: 'Email already in use' });
+    }
+    const salt = await bcrypt.genSalt(10);
+    const hashed = await bcrypt.hash(password, salt);
+    const user = await User.create({ name, email, password: hashed, role: 'parent' });
+    const { password: _p, ...userData } = user.toObject();
+    res.status(201).json({ success: true, data: userData });
 };
 
 export const getStatsForUser = async (req, res) => {

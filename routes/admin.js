@@ -5,7 +5,8 @@ import {
     updateWorship,
     deleteWorship,
     manageUsers,
-    getStatsForUser
+    getStatsForUser,
+    createParent
 } from '../controllers/adminController.js';
 import { protect } from '../middleware/auth.js';
 import { authorize } from '../middleware/roles.js';
@@ -15,6 +16,7 @@ import {
     createWorshipValidator,
     updateWorshipValidator
 } from '../validators/worshipValidator.js';
+import { body } from 'express-validator';
 
 const router = express.Router();
 
@@ -47,6 +49,17 @@ router.delete(
 router.get(
     '/users',
     asyncHandler(manageUsers)
+);
+
+router.post(
+    '/users',
+    [
+        body('name').notEmpty().withMessage('Name is required'),
+        body('email').isEmail().withMessage('Valid email is required'),
+        body('password').isLength({ min: 6 }).withMessage('Password min length is 6')
+    ],
+    validateResult,
+    asyncHandler(createParent)
 );
 
 router.get(
