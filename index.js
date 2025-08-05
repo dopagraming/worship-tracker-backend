@@ -99,5 +99,3 @@ if (process.env.NODE_ENV !== 'test') {
         startCronJobs()
     });
 }
-
-export default app;
