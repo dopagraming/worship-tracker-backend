@@ -91,11 +91,9 @@ let server;
 //     if (server) server.close(() => process.exit(1));
 // });
 
-if (process.env.NODE_ENV !== 'test') {
-    connectDB();
-    const PORT = process.env.PORT || 5000;
-    server = app.listen(PORT, () => {
-        logger.info(` Server running on port ${PORT}`);
-        startCronJobs()
-    });
-}
+connectDB();
+const PORT = process.env.PORT || 5000;
+server = app.listen(PORT, () => {
+    logger.info(` Server running on port ${PORT}`);
+    startCronJobs()
+});
