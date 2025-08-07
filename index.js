@@ -64,9 +64,6 @@ app.use(/^\/api\//, mongoSanitize());
 
 app.use(xss());
 
-app.use(morgan('combined', {
-    stream: { write: msg => logger.info(msg.trim()) }
-}));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
