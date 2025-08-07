@@ -4,14 +4,42 @@ import crypto from 'crypto';
 
 
 const userSchema = new mongoose.Schema({
-    name: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-    role: { type: String, enum: ['admin', 'parent', 'student'], required: true },
-    parentRef: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+    name: {
+        type: String,
+        required: true
+    },
+    email: {
+        type: String,
+        required: true,
+        unique: true
+    },
+    password: {
+        type: String,
+        required: true
+    },
+    role: {
+        type: String, enum: ['admin', 'parent', 'student'],
+        required: true
+    },
+    points: { type: Number },
+    parent: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User'
+    },
+    gfits: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Gift"
+        }
+    ],
+    completed: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Worship"
+        }
+    ],
     passwordResetToken: String,
     passwordResetExpires: Date
-
 });
 
 userSchema.pre('save', async function (next) {

@@ -110,7 +110,7 @@ export const getStatsForUser = async (req, res) => {
             }
         });
     } else if (user.role === 'parent') {
-        const students = await User.find({ parentRef: id });
+        const students = await User.find({ parent: id });
         const worships = await Worship.find();
         let totalPoints = 0;
         students.forEach(s => {
@@ -138,4 +138,70 @@ export const getStatsForUser = async (req, res) => {
     }
 
     res.status(400).json({ message: 'Unsupported role' });
+};
+
+export const listStudentsByParent = async (req, res) => {
+    const { parentId } = req.params;
+    const { page = 1, limit = 10 } = req.query;
+    const skip = (page - 1) * limit;
+    const [data, total] = await Promise.all([
+        User.find({ parent: parentId }).skip(skip).limit(Number(limit)).select('-password'),
+        User.countDocuments({ parent: parentId })
+    ]);
+    res.json({ success: true, total, data });
+};
+
+export const createStudent = async (req, res) => {
+    const { parentId } = req.params;
+    const { name, email, password } = req.body;
+    const exists = await User.findOne({ email });
+    if (exists) {
+        return res.status(400).json({ success: false, message: 'Email already in use' });
+    }
+    const salt = await bcrypt.genSalt(10);
+    const hashed = await bcrypt.hash(password, salt);
+    const student = await User.create({ name, email, password: hashed, parent: parentId, role: "student" });
+    const { password: _p, ...studentData } = student.toObject();
+    res.status(201).json({ success: true, data: studentData });
+};
+
+export const updateStudent = async (req, res) => {
+    const { studentId } = req.params;
+    const update = { ...req.body };
+    if (update.password) {
+        const salt = await bcrypt.genSalt(10);
+        update.password = await bcrypt.hash(update.password, salt);
+    }
+    const student = await User.findByIdAndUpdate(studentId, update, { new: true }).select('-password');
+    res.json({ success: true, data: student });
+};
+
+export const deleteStudent = async (req, res) => {
+    const { studentId } = req.params;
+    await User.findByIdAndDelete(studentId);
+    res.json({ success: true });
+};
+
+// list all gifts
+export const listGifts = async (req, res) => {
+    const gifts = await Gift.find();
+    res.json({ success: true, data: gifts });
+};
+
+// create a gift
+export const createGift = async (req, res) => {
+    const gift = await Gift.create(req.body);
+    res.status(201).json({ success: true, data: gift });
+};
+
+// update a gift
+export const updateGift = async (req, res) => {
+    const gift = await Gift.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.json({ success: true, data: gift });
+};
+
+// delete a gift
+export const deleteGift = async (req, res) => {
+    await Gift.findByIdAndDelete(req.params.id);
+    res.json({ success: true });
 };

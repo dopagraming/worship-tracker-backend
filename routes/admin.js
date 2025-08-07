@@ -6,7 +6,15 @@ import {
     deleteWorship,
     manageUsers,
     getStatsForUser,
-    createParent
+    createParent,
+    createStudent,
+    listStudentsByParent,
+    updateStudent,
+    deleteStudent,
+    deleteGift,
+    updateGift,
+    createGift,
+    listGifts
 } from '../controllers/adminController.js';
 import { protect } from '../middleware/auth.js';
 import { authorize } from '../middleware/roles.js';
@@ -66,5 +74,46 @@ router.get(
     '/users/:id/stats',
     asyncHandler(getStatsForUser)
 );
+
+router.get(
+    '/parents/:parentId/students',
+    asyncHandler(listStudentsByParent)
+);
+router.post(
+    '/parents/:parentId/students',
+    validateResult,
+    asyncHandler(createStudent)
+);
+router.put(
+    '/students/:studentId',
+    [ /* update validators */],
+    validateResult,
+    asyncHandler(updateStudent)
+);
+router.delete(
+    '/students/:studentId',
+    asyncHandler(deleteStudent)
+);
+
+router.get('/gifts', asyncHandler(listGifts));
+router.post(
+    '/gifts',
+    [
+        body('name').notEmpty().withMessage('Name is required'),
+        body('cost').isInt({ min: 0 }).withMessage('Cost must be a non-negative integer')
+    ],
+    validateResult,
+    asyncHandler(createGift)
+);
+router.put(
+    '/gifts/:id',
+    [
+        body('name').optional().notEmpty(),
+        body('cost').optional().isInt({ min: 0 })
+    ],
+    validateResult,
+    asyncHandler(updateGift)
+);
+router.delete('/gifts/:id', asyncHandler(deleteGift));
 
 export default router;
