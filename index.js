@@ -5,7 +5,6 @@ import logger from './config/logger.js';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import mongoSanitize from 'express-mongo-sanitize';
-import xss from 'xss-clean';
 import cors from 'cors';
 import compression from 'compression';
 import swaggerUi from 'swagger-ui-express';
@@ -60,9 +59,6 @@ app.use('/api', apiLimiter);
 app.use(express.json());
 
 app.use(/^\/api\//, mongoSanitize());
-
-app.use(xss());
-
 
 app.use('/api/auth', authRoutes);
 app.use('/api/admin', adminRoutes);
